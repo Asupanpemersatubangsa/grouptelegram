@@ -1,118 +1,462 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Undangan Grup Aset Pemersatu Bangsa</title>
-    
-    <!-- Memuat Tailwind CSS dari CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Konfigurasi Tema Warna Telegram Dark Mode -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        tg_bg: '#1c242d',
-                        tg_card: '#212d3b',
-                        tg_blue: '#2AABEE',
-                        tg_blue_hover: '#229ED9',
-                        tg_text: '#ffffff',
-                        tg_muted: '#8b9bb4'
-                    }
-                }
-            }
-        }
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CYBER WARFARE - Game Perang Online</title>
     <style>
-        body { 
-            background-color: #1c242d; 
-            color: #ffffff; 
-            font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
         }
-        .glow { 
-            box-shadow: 0 4px 30px rgba(42, 171, 238, 0.15); 
+
+        body {
+            background-color: #0b0f19;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Header / Landing Title */
+        .header {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            color: #00ffcc;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+        }
+
+        .header p {
+            font-size: 0.8rem;
+            color: #a0aec0;
+        }
+
+        /* Game Screen Area */
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            aspect-ratio: 4 / 3;
+            background: #1a202c;
+            border: 2px solid #00ffcc;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* HUD Overlay */
+        .hud {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            font-weight: bold;
+            pointer-events: none;
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        .hp-bar {
+            color: #ff3366;
+        }
+
+        .score-board {
+            color: #00ffcc;
+        }
+
+        /* Controls Section */
+        .controls-container {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            margin-top: 5px;
+        }
+
+        /* D-Pad Joystick Buttons */
+        .dpad {
+            display: grid;
+            grid-template-columns: repeat(3, 45px);
+            grid-template-rows: repeat(3, 45px);
+            gap: 5px;
+        }
+
+        .btn-ctrl {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 204, 0.4);
+            border-radius: 8px;
+            color: #00ffcc;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            touch-action: none;
+        }
+
+        .btn-ctrl:active {
+            background: rgba(0, 255, 204, 0.4);
+            transform: scale(0.95);
+        }
+
+        #btn-up { grid-column: 2; grid-row: 1; }
+        #btn-left { grid-column: 1; grid-row: 2; }
+        #btn-right { grid-column: 3; grid-row: 2; }
+        #btn-down { grid-column: 2; grid-row: 3; }
+
+        /* Action Buttons */
+        .action-btns {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn-action {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 2px solid #ff3366;
+            background: rgba(255, 51, 102, 0.2);
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(ff, 51, 102, 0.3);
+            touch-action: none;
+        }
+
+        .btn-action:active {
+            background: rgba(255, 51, 102, 0.7);
+            transform: scale(0.92);
+        }
+
+        /* Game Over Overlay */
+        #game-over-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(11, 15, 25, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            display: none;
+        }
+
+        #game-over-screen h2 {
+            color: #ff3366;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .btn-restart {
+            padding: 10px 25px;
+            background: #00ffcc;
+            color: #0b0f19;
+            border: none;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 15px;
         }
     </style>
 </head>
-<body class="antialiased min-h-screen flex flex-col">
-    
-    <!-- Navbar -->
-    <nav class="bg-tg_card shadow-md py-4 px-6 flex items-center justify-center">
-        <div class="flex items-center gap-3">
-            <!-- Icon Telegram -->
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="#2AABEE">
-                <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.211-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.023c.24-.213-.054-.333-.373-.121l-6.87 4.326-2.962-.924c-.64-.203-.658-.64.136-.954l11.566-4.458c.538-.196 1.006.128.835.941z"/>
-            </svg>
-            <span class="font-bold text-lg text-white tracking-wide">Telegram</span>
+<body>
+
+    <div class="header">
+        <h1>CYBER WARFARE</h1>
+        <p>Bertahan Hidup Dari Serangan Musuh!</p>
+    </div>
+
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div class="hud">
+            <div class="hp-bar">HP: <span id="hp-val">100</span>%</div>
+            <div class="score-board">SKOR: <span id="score-val">0</span></div>
         </div>
-    </nav>
-
-    <!-- Konten Utama -->
-    <main class="flex-grow flex flex-col items-center justify-center p-6 text-center">
-        <div class="max-w-md w-full">
-            
-            <!-- Foto Profil Grup Mockup -->
-            <div class="w-24 h-24 bg-tg_blue rounded-full mx-auto mb-4 flex items-center justify-center text-4xl shadow-lg">
-                🔞
-            </div>
-
-            <h1 class="text-2xl font-bold text-white mb-2">Grup Aset Pemersatu Bangsa</h1>
-            <p class="text-sm text-tg_blue mb-8 font-medium">12,450 members, 1,203 online</p>
-            
-            <div class="bg-tg_card rounded-2xl p-8 glow relative overflow-hidden mb-8">
-                
-                <h2 class="text-lg font-semibold text-white mb-2">Anda diundang untuk bergabung</h2>
-                <p class="text-sm text-tg_muted mb-8">Silakan klik tombol di bawah ini untuk membuka aplikasi Telegram dan masuk ke dalam grup.</p>
-                
-                <!-- Tombol Action -->
-                <button id="startBtn" class="bg-tg_blue hover:bg-tg_blue_hover text-white font-semibold py-3 px-8 rounded-xl transition-colors w-full flex items-center justify-center gap-2 mx-auto shadow-md">
-                    <!-- Icon Loading (Tersembunyi by default) -->
-                    <svg id="loadingIcon" class="animate-spin hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg>
-                    
-                    <span id="btnText">Masuk ke Grup</span>
-                </button>
-            </div>
-            
-            <p class="text-xs text-tg_muted">Jika Anda belum memiliki Telegram, silakan unduh aplikasinya terlebih dahulu.</p>
+        <div id="game-over-screen">
+            <h2>MISI GAGAL</h2>
+            <p>Skor Akhir: <span id="final-score">0</span></p>
+            <button class="btn-restart" onclick="restartGame()">MAIN LAGI</button>
         </div>
-    </main>
+    </div>
 
-    <!-- Logika JavaScript -->
+    <!-- On-Screen Controls for Mobile -->
+    <div class="controls-container">
+        <div class="dpad">
+            <div class="btn-ctrl" id="btn-up">▲</div>
+            <div class="btn-ctrl" id="btn-left">◀</div>
+            <div class="btn-ctrl" id="btn-right">▶</div>
+            <div class="btn-ctrl" id="btn-down">▼</div>
+        </div>
+        <div class="action-btns">
+            <div class="btn-action" id="btn-fire">TEMBAK</div>
+        </div>
+    </div>
+
     <script>
-        document.getElementById('startBtn').addEventListener('click', function() {
-            const btn = this;
-            const btnText = document.getElementById('btnText');
-            const loadingIcon = document.getElementById('loadingIcon');
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set resolution Canvas
+        canvas.width = 600;
+        canvas.height = 450;
+
+        // State Kontrol
+        const keys = { up: false, down: false, left: false, right: false, fire: false };
+
+        // Game State
+        let gameOver = false;
+        let score = 0;
+
+        // Player / Tank Militer
+        const player = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            size: 15,
+            speed: 3.5,
+            hp: 100,
+            angle: 0
+        };
+
+        let bullets = [];
+        let enemies = [];
+        let lastShoot = 0;
+
+        // --- Event Listener Touch Control (Mobile Android) ---
+        function bindTouch(id, keyName) {
+            const el = document.getElementById(id);
+            const start = (e) => { e.preventDefault(); keys[keyName] = true; };
+            const end = (e) => { e.preventDefault(); keys[keyName] = false; };
             
-            // 1. LINK SHOPEE AFFILIATE ANDA (Berjalan di latar belakang)
-            const affiliateUrl = 'https://s.shopee.co.id/9zxYYhhM6T';
-            
-            // 2. LINK GRUP TELEGRAM ANDA (Tujuan akhir pengguna)
-            const telegramUrl = 'https://t.me/Asupangacornew1_bot'; 
+            el.addEventListener('touchstart', start);
+            el.addEventListener('touchend', end);
+            el.addEventListener('mousedown', start);
+            el.addEventListener('mouseup', end);
+        }
 
-            // Ubah tampilan tombol ke mode loading
-            btn.disabled = true;
-            btn.classList.add('opacity-80', 'cursor-not-allowed');
-            loadingIcon.classList.remove('hidden');
-            btnText.textContent = 'Menghubungkan...';
+        bindTouch('btn-up', 'up');
+        bindTouch('btn-down', 'down');
+        bindTouch('btn-left', 'left');
+        bindTouch('btn-right', 'right');
+        bindTouch('btn-fire', 'fire');
 
-            // Menyisipkan iframe tersembunyi ke dalam halaman untuk Shopee
-            const hiddenIframe = document.createElement('iframe');
-            hiddenIframe.src = affiliateUrl;
-            hiddenIframe.style.display = 'none'; 
-            hiddenIframe.style.width = '0px';
-            hiddenIframe.style.height = '0px';
-            hiddenIframe.setAttribute('frameborder', '0');
-            document.body.appendChild(hiddenIframe);
-
-            // Memberikan jeda 1,5 detik agar link Shopee sempat diproses di latar belakang
-            // Setelah itu pengguna dialihkan secara otomatis ke Telegram
-            setTimeout(() => {
-                window.location.href = telegramUrl;
-            }, 1500);
+        // --- Keyboard Controls (PC) ---
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp' || e.key === 'w') keys.up = true;
+            if (e.key === 'ArrowDown' || e.key === 's') keys.down = true;
+            if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = true;
+            if (e.key === 'ArrowRight' || e.key === 'd') keys.right = true;
+            if (e.key === ' ' || e.key === 'j') keys.fire = true;
         });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowUp' || e.key === 'w') keys.up = false;
+            if (e.key === 'ArrowDown' || e.key === 's') keys.down = false;
+            if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = false;
+            if (e.key === 'ArrowRight' || e.key === 'd') keys.right = false;
+            if (e.key === ' ' || e.key === 'j') keys.fire = false;
+        });
+
+        // Spawn Musuh secara berkala
+        function spawnEnemy() {
+            if (gameOver) return;
+            let x, y;
+            if (Math.random() < 0.5) {
+                x = Math.random() < 0.5 ? 0 : canvas.width;
+                y = Math.random() * canvas.height;
+            } else {
+                x = Math.random() * canvas.width;
+                y = Math.random() < 0.5 ? 0 : canvas.height;
+            }
+            enemies.push({ x, y, size: 12, speed: 1.2 + Math.random() * 0.8 });
+        }
+        setInterval(spawnEnemy, 1200);
+
+        // Tembak Peluru
+        function shoot() {
+            const now = Date.now();
+            if (now - lastShoot > 180) { // Cooldown tembakan
+                const dx = Math.cos(player.angle);
+                const dy = Math.sin(player.angle);
+                bullets.push({
+                    x: player.x + dx * player.size,
+                    y: player.y + dy * player.size,
+                    dx: dx * 7,
+                    dy: dy * 7
+                });
+                lastShoot = now;
+            }
+        }
+
+        // Loop Game Utama
+        function update() {
+            if (gameOver) return;
+
+            // Pergerakan Player & Sudut Hadap
+            let moveX = 0;
+            let moveY = 0;
+
+            if (keys.up) moveY -= 1;
+            if (keys.down) moveY += 1;
+            if (keys.left) moveX -= 1;
+            if (keys.right) moveX += 1;
+
+            if (moveX !== 0 || moveY !== 0) {
+                player.angle = Math.atan2(moveY, moveX);
+                player.x += Math.cos(player.angle) * player.speed;
+                player.y += Math.sin(player.angle) * player.speed;
+            }
+
+            // Batas Area
+            player.x = Math.max(player.size, Math.min(canvas.width - player.size, player.x));
+            player.y = Math.max(player.size, Math.min(canvas.height - player.size, player.y));
+
+            // Tombol Tembak
+            if (keys.fire) shoot();
+
+            // Update Peluru
+            bullets.forEach((b, index) => {
+                b.x += b.dx;
+                b.y += b.dy;
+                if (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) {
+                    bullets.splice(index, 1);
+                }
+            });
+
+            // Update Musuh
+            enemies.forEach((enemy, eIndex) => {
+                const angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
+                enemy.x += Math.cos(angle) * enemy.speed;
+                enemy.y += Math.sin(angle) * enemy.speed;
+
+                // Tabrakan Musuh vs Peluru
+                bullets.forEach((bullet, bIndex) => {
+                    const dist = Math.hypot(bullet.x - enemy.x, bullet.y - enemy.y);
+                    if (dist < enemy.size) {
+                        enemies.splice(eIndex, 1);
+                        bullets.splice(bIndex, 1);
+                        score += 10;
+                        document.getElementById('score-val').innerText = score;
+                    }
+                });
+
+                // Tabrakan Musuh vs Player
+                const distPlayer = Math.hypot(player.x - enemy.x, player.y - enemy.y);
+                if (distPlayer < player.size + enemy.size) {
+                    enemies.splice(eIndex, 1);
+                    player.hp -= 15;
+                    document.getElementById('hp-val').innerText = Math.max(0, player.hp);
+                    if (player.hp <= 0) {
+                        endGame();
+                    }
+                }
+            });
+        }
+
+        // Gambar Komponen Visual
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Grid Background Militer
+            ctx.strokeStyle = '#243044';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < canvas.width; x += 30) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += 30) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+            }
+
+            if (!gameOver) {
+                // Gambar Player (Prajurit/Tank)
+                ctx.save();
+                ctx.translate(player.x, player.y);
+                ctx.rotate(player.angle);
+                
+                // Badan
+                ctx.fillStyle = '#00ffcc';
+                ctx.beginPath();
+                ctx.arc(0, 0, player.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Senjata / Laras Tembak
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, -3, player.size + 8, 6);
+                ctx.restore();
+
+                // Gambar Peluru
+                ctx.fillStyle = '#ffcc00';
+                bullets.forEach(b => {
+                    ctx.beginPath();
+                    ctx.arc(b.x, b.y, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                // Gambar Musuh
+                ctx.fillStyle = '#ff3366';
+                enemies.forEach(e => {
+                    ctx.beginPath();
+                    ctx.arc(e.x, e.y, e.size, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            }
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function endGame() {
+            gameOver = true;
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('game-over-screen').style.display = 'flex';
+        }
+
+        function restartGame() {
+            player.hp = 100;
+            player.x = canvas.width / 2;
+            player.y = canvas.height / 2;
+            score = 0;
+            bullets = [];
+            enemies = [];
+            gameOver = false;
+            document.getElementById('hp-val').innerText = 100;
+            document.getElementById('score-val').innerText = 0;
+            document.getElementById('game-over-screen').style.display = 'none';
+        }
+
+        // Jalankan Game Loop
+        gameLoop();
     </script>
 </body>
 </html>
